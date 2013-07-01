@@ -1,0 +1,22 @@
+#!/bin/sh
+# chkconfig: 2345 16 01
+# description: forces a delay in further processing until hostname is correct
+
+temporary_hostname=$(head -1 /var/log/messages | awk '{ print $4 }')
+
+case "$1" in 
+  start)
+  	echo -n "Causing a delay until hostname is right..."
+    while [ "$?" -eq 0 ]; do
+    	sleep 1
+	    hostname | grep -i "$temporary_hostname" > /dev/null
+	  done
+    echo "."
+    ;;
+  *)
+		echo "Usage: /etc/init.d/causeadelay {start}"
+    exit 1
+esac
+
+exit 0
+
