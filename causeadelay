@@ -6,17 +6,16 @@ temporary_hostname=$(head -1 /var/log/messages | awk '{ print $4 }')
 
 case "$1" in 
   start)
-  	echo -n "Causing a delay until hostname is right..."
+    echo -n "Causing a delay until hostname is right..."
     while [ "$?" -eq 0 ]; do
-    	sleep 1
-	    hostname | grep -i "$temporary_hostname" > /dev/null
-	  done
+      sleep 1
+      hostname | grep -i "$temporary_hostname" > /dev/null
+    done
     echo "."
     ;;
   *)
-		echo "Usage: /etc/init.d/causeadelay {start}"
+    echo "Usage: /etc/init.d/causeadelay {start}"
     exit 1
 esac
 
 exit 0
-
