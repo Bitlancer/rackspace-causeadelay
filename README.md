@@ -1,7 +1,7 @@
 rackspace-causeadelay
 =====================
 
-Causes a boot delay in Strings base images until the hostname is set by the Nova agent.
+Causes a boot delay in Rackspace Cloud images until the hostname is set by the Nova agent.
 
 Why?
 ====
