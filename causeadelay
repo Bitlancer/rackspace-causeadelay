@@ -3,11 +3,16 @@
 # description: forces a delay in further processing until hostname is correct
 
 temporary_hostname=$(head -1 /var/log/messages | awk '{ print $4 }')
+timeout=180
 
 case "$1" in 
   start)
     echo -n "Causing a delay until hostname is right..."
     while [ "$?" -eq 0 ]; do
+      timeout=$(expr "$timeout" - 1)
+      if [ "$timeout" -le 0 ]; then
+        exit
+      fi
       sleep 1
       hostname | grep -i "$temporary_hostname" > /dev/null
     done
