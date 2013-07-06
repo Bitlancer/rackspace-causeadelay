@@ -1,8 +1,8 @@
 #!/bin/sh
 # chkconfig: 2345 16 01
-# description: forces a delay in further processing until hostname is correct
+# description: forces a delay in further processing until hostname is correct or until timeout
 
-temporary_hostname=$(head -1 /var/log/messages | awk '{ print $4 }')
+temporary_hostname=$(tail -1 /var/log/messages | awk '{ print $4 }')
 timeout=180
 
 case "$1" in 
