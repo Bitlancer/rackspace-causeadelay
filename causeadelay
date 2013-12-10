@@ -3,7 +3,7 @@
 # description: forces a delay in further processing until hostname is correct or until timeout
 
 temporary_hostname=$(tail -1 /var/log/messages | awk '{ print $4 }')
-timeout=180
+timeout=300
 
 case "$1" in 
   start)
@@ -17,6 +17,8 @@ case "$1" in
       hostname | grep -i "$temporary_hostname" > /dev/null
     done
     echo "."
+		echo -n "Disabling causeadelay for future runs..."
+		chkconfig causeadelay off
     ;;
   *)
     echo "Usage: /etc/init.d/causeadelay {start}"
