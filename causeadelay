@@ -17,8 +17,8 @@ case "$1" in
       hostname | grep -i "$temporary_hostname" > /dev/null
     done
     echo "."
-		echo -n "Disabling causeadelay for future runs..."
-		chkconfig causeadelay off
+    echo -n "Disabling causeadelay for future runs..."
+    chkconfig causeadelay off
     ;;
   *)
     echo "Usage: /etc/init.d/causeadelay {start}"
