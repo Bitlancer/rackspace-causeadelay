@@ -1,23 +1,28 @@
 #!/bin/sh
 # chkconfig: 2345 16 01
-# description: forces a delay in further processing until hostname is correct or until timeout
-
-temporary_hostname=$(tail -1 /var/log/messages | awk '{ print $4 }')
-timeout=300
+# description: forces a delay in further processing until hostname is correct
 
 case "$1" in 
   start)
-    echo -n "Causing a delay until hostname is right..."
-    while [ "$?" -eq 0 ]; do
-      timeout=$(expr "$timeout" - 1)
-      if [ "$timeout" -le 0 ]; then
-        exit
-      fi
+    ip_address=$(facter ipaddress)
+    timestamp_now=$(date +%s)
+    timestamp_later=$((timestamp_now + 300))
+
+    # Wait until /etc/hosts has $ip_address OR timeout hits
+    while ! grep $ip_address /etc/hosts > /dev/null; do
+      [[ $(date +%s) -gt $timestamp_later ]] && exit 1
       sleep 1
-      hostname | grep -i "$temporary_hostname" > /dev/null
     done
-    echo "."
-    echo -n "Disabling causeadelay for future runs..."
+
+    # Get hostname from /etc/hosts, it's been set now
+    hostname=$(grep $(facter ipaddress) /etc/hosts | cut -f 2)
+
+    # Wait until hostname is set on box OR timeout hits
+    while [ $(hostname) != $hostname ]; do
+      [[ $(date +%s) -gt $timestamp_later ]] && exit 1
+      sleep 1
+    done
+
     chkconfig causeadelay off
     ;;
   *)
