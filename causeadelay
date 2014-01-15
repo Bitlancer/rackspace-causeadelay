@@ -4,25 +4,23 @@
 
 case "$1" in 
   start)
-    ip_address=$(facter ipaddress)
     timestamp_now=$(date +%s)
     timestamp_later=$((timestamp_now + 300))
+    hostname_shouldbe=$(xenstore-read vm-data/hostname)
+    echo "[$timestamp_now] Starting up." >> /var/log/causeadelay.log
 
-    # Wait until /etc/hosts has $ip_address OR timeout hits
-    while ! grep $ip_address /etc/hosts > /dev/null; do
-      [[ $(date +%s) -gt $timestamp_later ]] && exit 1
-      sleep 1
+    # Wait until hostname is set on box
+    while [ $(hostname) != $hostname_shouldbe ]; do
+      if [ $(date +%s) -gt $timestamp_later ]; then
+        echo "[$(date +%s)] It is now '$timestamp_later', timing out and exiting." >> /var/log/causeadelay.log
+        exit 1
+      else
+        echo "[$(date +%s)] Hostname is still '$(hostname)', should be '$hostname_shouldbe', sleeping." >> /var/log/causeadelay.log
+        sleep 15
+      fi
     done
-
-    # Get hostname from /etc/hosts, it's been set now
-    hostname=$(grep $(facter ipaddress) /etc/hosts | cut -f 2)
-
-    # Wait until hostname is set on box OR timeout hits
-    while [ $(hostname) != $hostname ]; do
-      [[ $(date +%s) -gt $timestamp_later ]] && exit 1
-      sleep 1
-    done
-
+    
+    echo "[$(date +%s)] All is good.  Disabling causeadelay for future runs." >> /var/log/causeadelay.log
     chkconfig causeadelay off
     ;;
   *)
